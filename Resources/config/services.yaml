@@ -1,0 +1,2 @@
+services:
+  Compass\DatadogBundle\Service\DatadogService:
