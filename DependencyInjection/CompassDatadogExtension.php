@@ -31,6 +31,10 @@ class CompassDatadogExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
 
+        if (false === extension_loaded('ddtrace')) {
+            return;
+        }
+
         $this->configureTrace($config, $container);
         $this->configureAppsec($config, $container);
     }
@@ -44,10 +48,6 @@ class CompassDatadogExtension extends Extension
     {
         if (false === $config['trace']['enabled']) {
             return;
-        }
-
-        if (false === extension_loaded('ddtrace')) {
-            throw new InvalidConfigurationException("Extension 'ddtrace' must be loaded to enable DataDog tracing.");
         }
 
         if (false === class_exists($config['trace']['user_entity'])) {
@@ -78,11 +78,7 @@ class CompassDatadogExtension extends Extension
         }
 
         if (false === extension_loaded('ddappsec')) {
-            throw new InvalidConfigurationException("Extension 'ddappsec' must be loaded to enable DataDog ASM.");
-        }
-
-        if (false === $config['trace']['enabled']) {
-            throw new InvalidConfigurationException("Tracing must be enabled to enable Datadog ASM.");
+            return;
         }
 
         $container->register(LoginFailureEventListener::class, LoginFailureEventListener::class)
