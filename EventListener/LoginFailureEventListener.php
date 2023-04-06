@@ -18,14 +18,18 @@ class LoginFailureEventListener implements EventSubscriberInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private bool $appsecEnabled;
+
     /**
      * @param DatadogService $dataDogService
      * @param EventDispatcherInterface $eventDispatcher
+     * @param bool $appsecEnabled
      */
-    public function __construct(DatadogService $dataDogService, EventDispatcherInterface $eventDispatcher)
+    public function __construct(DatadogService $dataDogService, EventDispatcherInterface $eventDispatcher, bool $appsecEnabled)
     {
         $this->dataDogService = $dataDogService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->appsecEnabled = $appsecEnabled;
     }
 
     public static function getSubscribedEvents()
@@ -37,6 +41,10 @@ class LoginFailureEventListener implements EventSubscriberInterface
 
     public function loginFailureEvent(LoginFailureEvent $event)
     {
+        if (!$this->appsecEnabled) {
+            return;
+        }
+
         /** @var UserBadge $badge */
         $badge = $event->getPassport()->getBadge(UserBadge::class);
         $username = $badge->getUserIdentifier();

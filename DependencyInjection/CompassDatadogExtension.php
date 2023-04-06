@@ -63,7 +63,9 @@ class CompassDatadogExtension extends Extension
             ->addArgument(new Reference('security.token_storage'))
             ->addArgument(new Reference('event_dispatcher'))
             ->addArgument($config['trace']['user_properties'])
+            ->addArgument($config['trace']['enabled'])
             ->addTag('kernel.event_subscriber');
+
     }
 
     /**
@@ -84,11 +86,13 @@ class CompassDatadogExtension extends Extension
         $container->register(LoginFailureEventListener::class, LoginFailureEventListener::class)
             ->addArgument(new Reference(DatadogService::class))
             ->addArgument(new Reference('event_dispatcher'))
+            ->addArgument($config['trace']['enabled'])
             ->addTag('kernel.event_subscriber');
 
         $container->register(LoginSuccessEventListener::class, LoginSuccessEventListener::class)
             ->addArgument(new Reference(DatadogService::class))
             ->addArgument(new Reference('event_dispatcher'))
+            ->addArgument($config['trace']['enabled'])
             ->addTag('kernel.event_subscriber');
     }
 }

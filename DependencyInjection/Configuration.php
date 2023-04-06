@@ -23,7 +23,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->arrayNode('trace')
                     ->children()
-                        ->booleanNode('enabled')->defaultValue(true)->end()
+                        ->booleanNode('enabled')->defaultValue(false)->end()
                         ->scalarNode('user_entity')->end()
                         ->arrayNode('user_properties')
                             ->defaultValue([])

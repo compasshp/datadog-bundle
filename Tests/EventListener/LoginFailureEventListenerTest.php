@@ -34,7 +34,7 @@ class LoginFailureEventListenerTest extends TestCase
         $this->dataDogService = $this->createMock(DatadogService::class);
         $this->dataDogService->method('addTraceMetadata')->willReturn(null);
 
-        $this->listener = new LoginFailureEventListener($this->dataDogService, $this->eventDispatcher);
+        $this->listener = new LoginFailureEventListener($this->dataDogService, $this->eventDispatcher, true);
     }
 
     public function testLoginFailureTracked()

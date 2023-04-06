@@ -21,18 +21,21 @@ class RequestEventListener implements EventSubscriberInterface
 
     private array $userTraceProperties = [];
 
+    private bool $traceEnabled;
+
     /**
      * @param DatadogService $dataDogService
      * @param TokenStorageInterface $tokenStorage
      * @param EventDispatcherInterface $eventDispatcher
      * @param array $userTraceProperties
      */
-    public function __construct(DatadogService $dataDogService, TokenStorageInterface $tokenStorage, EventDispatcherInterface $eventDispatcher, array $userTraceProperties)
+    public function __construct(DatadogService $dataDogService, TokenStorageInterface $tokenStorage, EventDispatcherInterface $eventDispatcher, array $userTraceProperties, bool $traceEnabled)
     {
         $this->dataDogService = $dataDogService;
         $this->tokenStorage = $tokenStorage;
         $this->eventDispatcher = $eventDispatcher;
         $this->userTraceProperties = $userTraceProperties;
+        $this->traceEnabled = $traceEnabled;
     }
 
     public static function getSubscribedEvents(): array
@@ -44,6 +47,10 @@ class RequestEventListener implements EventSubscriberInterface
 
     public function updateRootSpan(RequestEvent $event)
     {
+        if (!$this->traceEnabled) {
+            return;
+        }
+
         $meta = [];
 
         $requestEvent = $this->eventDispatcher->dispatch(new DatadogRequestEvent());

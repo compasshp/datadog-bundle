@@ -31,7 +31,7 @@ class RequestEventListenerTest extends TestCase
         $this->dataDogService = $this->createMock(DatadogService::class);
         $this->dataDogService->method('addTraceMetadata')->willReturn(null);
 
-        $this->listener = new RequestEventListener($this->dataDogService, $security, $eventDispatcher, ['first_name', 'lastName']);
+        $this->listener = new RequestEventListener($this->dataDogService, $security, $eventDispatcher, ['first_name', 'lastName'], true);
     }
 
     public function testUpdateRootSpan()

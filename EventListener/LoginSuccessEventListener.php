@@ -16,15 +16,20 @@ class LoginSuccessEventListener implements EventSubscriberInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private bool $appsecEnabled;
+
     /**
      * @param DatadogService $dataDogService
      * @param EventDispatcherInterface $eventDispatcher
+     * @param bool $appsecEnabled
      */
-    public function __construct(DatadogService $dataDogService, EventDispatcherInterface $eventDispatcher)
+    public function __construct(DatadogService $dataDogService, EventDispatcherInterface $eventDispatcher, bool $appsecEnabled)
     {
         $this->dataDogService = $dataDogService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->appsecEnabled = $appsecEnabled;
     }
+
 
     public static function getSubscribedEvents()
     {
@@ -35,6 +40,10 @@ class LoginSuccessEventListener implements EventSubscriberInterface
 
     public function loginSuccessEvent(LoginSuccessEvent $event)
     {
+        if (!$this->appsecEnabled) {
+            return;
+        }
+
         $eventMeta = $this->eventDispatcher->dispatch(new DatadogLoginSuccessEvent());
 
         $this->dataDogService->trackLoginSuccess($event->getUser()->getUserIdentifier(), $eventMeta->getUserMeta());
