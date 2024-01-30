@@ -17,6 +17,9 @@ class DatadogService
     {
         $rootSpan = root_span();
 
+        $metadata['dd.trace_id'] = \DDTrace\logs_correlation_trace_id();
+        $metadata['dd.span_id'] = \dd_trace_peek_span_id();
+
         $rootSpan->meta = array_merge($rootSpan->meta, $metadata);
     }
 
