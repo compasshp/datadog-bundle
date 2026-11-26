@@ -64,6 +64,7 @@ class CompassDatadogExtension extends Extension
             ->addArgument(new Reference('event_dispatcher'))
             ->addArgument($config['trace']['user_properties'])
             ->addArgument($config['trace']['enabled'])
+            ->addArgument($config['trace']['user_entity'])
             ->addTag('kernel.event_subscriber');
 
     }

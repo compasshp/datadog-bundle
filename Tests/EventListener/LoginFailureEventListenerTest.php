@@ -73,6 +73,18 @@ class LoginFailureEventListenerTest extends TestCase
         }));
     }
 
+    /**
+     * AuthenticatorManager dispatches LoginFailureEvent with a null passport when the authenticator
+     * throws from authenticate(). That used to be a fatal "call to a member function on null".
+     */
+    public function testLoginFailureWithoutPassportIsIgnored()
+    {
+        $this->dataDogService->expects($this->never())->method('trackLoginFailure');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        $this->listener->loginFailureEvent($this->createLoginFailedEvent(null));
+    }
+
     public function testEventDispatched()
     {
         $this->eventDispatcher->expects($this->once())->method('dispatch');
