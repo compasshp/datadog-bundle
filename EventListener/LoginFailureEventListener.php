@@ -46,7 +46,14 @@ class LoginFailureEventListener implements EventSubscriberInterface
         }
 
         /** @var UserBadge $badge */
-        $badge = $event->getPassport()->getBadge(UserBadge::class);
+        // There is no passport when the authenticator fails before it can build one (an access-token
+        // handler rejecting a token, for example), and so no user identifier to report.
+        $badge = $event->getPassport()?->getBadge(UserBadge::class);
+
+        if (!$badge instanceof UserBadge) {
+            return;
+        }
+
         $username = $badge->getUserIdentifier();
 
         $exists = true;

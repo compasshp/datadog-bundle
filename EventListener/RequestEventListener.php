@@ -24,13 +24,22 @@ class RequestEventListener implements EventSubscriberInterface
     private bool $traceEnabled;
 
     /**
+     * @var string|null The configured trace.user_entity class. The user properties are only read
+     *                  from instances of it.
+     */
+    private ?string $userEntity;
+
+    /**
      * @param DatadogService $dataDogService
      * @param TokenStorageInterface $tokenStorage
      * @param EventDispatcherInterface $eventDispatcher
      * @param array $userTraceProperties
+     * @param bool $traceEnabled
+     * @param string|null $userEntity
      */
-    public function __construct(DatadogService $dataDogService, TokenStorageInterface $tokenStorage, EventDispatcherInterface $eventDispatcher, array $userTraceProperties, bool $traceEnabled)
+    public function __construct(DatadogService $dataDogService, TokenStorageInterface $tokenStorage, EventDispatcherInterface $eventDispatcher, array $userTraceProperties, bool $traceEnabled, ?string $userEntity = null)
     {
+        $this->userEntity = $userEntity;
         $this->dataDogService = $dataDogService;
         $this->tokenStorage = $tokenStorage;
         $this->eventDispatcher = $eventDispatcher;
@@ -60,7 +69,10 @@ class RequestEventListener implements EventSubscriberInterface
         if (null !== $this->tokenStorage->getToken()?->getUser()) {
             $user = $this->tokenStorage->getToken()->getUser();
 
-            if (false === empty($this->userTraceProperties)) {
+            // user_properties are properties of user_entity. An application can authenticate other kinds
+            // of principal (an API client on a second firewall, for example) that do not have them, and
+            // reading a missing property throws, which would fail the request.
+            if (false === empty($this->userTraceProperties) && $this->isTraceableUser($user)) {
                 $propertyAccessor = PropertyAccess::createPropertyAccessor();
                 foreach ($this->userTraceProperties as $traceProperty) {
                     $meta['usr.' . $traceProperty] = $propertyAccessor->getValue($user, $traceProperty);
@@ -74,5 +86,10 @@ class RequestEventListener implements EventSubscriberInterface
         }
 
         $this->dataDogService->addTraceMetadata($meta);
+    }
+
+    private function isTraceableUser(object $user): bool
+    {
+        return null === $this->userEntity || $user instanceof $this->userEntity;
     }
 }
